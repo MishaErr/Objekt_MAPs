@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Моя KML-карта</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Подключаем Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- Подключаем плагин для KML -->
+  <script src="https://unpkg.com/@maptiler/leaflet-kml@1.0.2/leaflet-kml.js"></script>
+  
+  <style>
+    #map { height: 70vh; }
+    .legend { 
+      background: white; 
+      padding: 10px; 
+      border-radius: 5px; 
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Моя интерактивная карта</h1>
+  
+  <!-- Карта -->
+  <div id="map"></div>
+  
+  <!-- Легенда (настройте под себя!) -->
+  <div class="legend">
+    <h3>Легенда</h3>
+    <p>🔴 <span style="background:#ff000033; padding:2px">Красный</span> — Срочные объекты</p>
+    <p>🔵 <span style="background:#0000ff33; padding:2px">Синий</span> — Обычные объекты</p>
+    <p>🟢 <span style="background:#00ff0033; padding:2px">Зелёный</span> — Завершённые</p>
+  </div>
+
+  <script>
+    // Создаём карту
+    const map = L.map('map').setView([55.75, 37.62], 10); // [широта, долгота], зум
+    
+    // Подложка OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // Загружаем KML (замените YOUR_KML_URL на вашу ссылку из Шага 2!)
+    fetch('https://raw.githubusercontent.com/MishaErr/Objekt_MAPs/refs/heads/main/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B%20%D0%BD%D0%B0%20%D0%B2%D1%8B%D0%BD%D0%BE%D1%81.kml')
+      .then(res => res.text())
+      .then(kmltext => {
+        const parser = new DOMParser();
+        const kml = parser.parseFromString(kmltext, 'text/xml');
+        const kmlLayer = new L.KML(kml);
+        map.addLayer(kmlLayer);
+        map.fitBounds(kmlLayer.getBounds());
+      });
+  </script>
+</body>
+</html>
