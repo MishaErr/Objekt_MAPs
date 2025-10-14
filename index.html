@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>KML-карта с GitHub-загрузкой</title>
+  <title>KML-карта (MishaErr/Objekt_MAPs)</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -11,7 +11,7 @@
 
   <style>
     html, body, #map { height: 100%; margin: 0; }
-    #upload-btn, #github-btn, #saved-layers-btn {
+    #upload-btn, #saved-layers-btn {
       position: absolute;
       top: 10px;
       z-index: 1000;
@@ -22,9 +22,8 @@
       cursor: pointer;
     }
     #upload-btn { left: 10px; }
-    #github-btn { left: 130px; }
-    #saved-layers-btn { left: 270px; }
-    #dialog, #github-dialog, #saved-dialog {
+    #saved-layers-btn { left: 130px; }
+    #dialog, #saved-dialog {
       position: absolute;
       top: 50%;
       left: 50%;
@@ -40,7 +39,7 @@
       max-height: 80vh;
       overflow-y: auto;
     }
-    #dialog input, #dialog textarea, #github-dialog input {
+    #dialog input, #dialog textarea {
       width: 100%;
       margin: 5px 0 10px;
       padding: 5px;
@@ -74,7 +73,6 @@
 <body>
   <div id="map"></div>
   <button id="upload-btn">Загрузить KML</button>
-  <button id="github-btn">GitHub настройки</button>
   <button id="saved-layers-btn">Загрузить слои</button>
 
   <!-- Диалог загрузки -->
@@ -87,17 +85,6 @@
     <div class="status" id="upload-status"></div>
     <button onclick="applyLayer()">Сохранить и добавить</button>
     <button onclick="closeDialog()">Отмена</button>
-  </div>
-
-  <!-- Диалог GitHub настроек -->
-  <div id="github-dialog">
-    <h3>Настройки GitHub</h3>
-    <label>Username:<br><input type="text" id="github-username" placeholder="ваш-логин"></label><br>
-    <label>Repository:<br><input type="text" id="github-repo" placeholder="название-репозитория"></label><br>
-    <label>Token:<br><input type="password" id="github-token" placeholder="ghp_..."></label><br>
-    <div class="status" id="github-status"></div>
-    <button onclick="saveGitHubSettings()">Сохранить</button>
-    <button onclick="closeGitHubDialog()">Отмена</button>
   </div>
 
   <!-- Диалог сохраненных слоев -->
@@ -118,17 +105,15 @@
     let currentKmlData = null;
     let currentFileName = '';
 
-    // GitHub настройки из localStorage
-    let githubSettings = JSON.parse(localStorage.getItem('githubSettings') || '{}');
+    // GitHub настройки (уже вшиты)
+    const githubSettings = {
+      username: 'MishaErr',
+      repo: 'Objekt_MAPs',
+      token: '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'
+    };
 
     // Кнопка загрузки
     document.getElementById('upload-btn').onclick = () => {
-      if (!githubSettings.username || !githubSettings.repo || !githubSettings.token) {
-        alert('Сначала настройте GitHub в меню "GitHub настройки"');
-        showGitHubDialog();
-        return;
-      }
-      
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '.kml';
@@ -146,8 +131,7 @@
       input.click();
     };
 
-    // Кнопки меню
-    document.getElementById('github-btn').onclick = showGitHubDialog;
+    // Кнопка слоев
     document.getElementById('saved-layers-btn').onclick = loadLayersList;
 
     function showDialog() {
@@ -161,34 +145,9 @@
       document.getElementById('dialog').style.display = 'none';
     }
 
-    function showGitHubDialog() {
-      document.getElementById('github-username').value = githubSettings.username || '';
-      document.getElementById('github-repo').value = githubSettings.repo || '';
-      document.getElementById('github-token').value = githubSettings.token || '';
-      document.getElementById('github-status').textContent = '';
-      document.getElementById('overlay').style.display = 'block';
-      document.getElementById('github-dialog').style.display = 'block';
-    }
-
-    function closeGitHubDialog() {
-      document.getElementById('overlay').style.display = 'none';
-      document.getElementById('github-dialog').style.display = 'none';
-    }
-
     function closeSavedDialog() {
       document.getElementById('overlay').style.display = 'none';
       document.getElementById('saved-dialog').style.display = 'none';
-    }
-
-    function saveGitHubSettings() {
-      githubSettings = {
-        username: document.getElementById('github-username').value,
-        repo: document.getElementById('github-repo').value,
-        token: document.getElementById('github-token').value
-      };
-      localStorage.setItem('githubSettings', JSON.stringify(githubSettings));
-      document.getElementById('github-status').textContent = 'Настройки сохранены!';
-      setTimeout(closeGitHubDialog, 1000);
     }
 
     // Функция парсинга координат
@@ -336,23 +295,17 @@
     }
 
     async function loadLayersList() {
-      if (!githubSettings.username || !githubSettings.repo) {
-        alert('Сначала настройте GitHub в меню "GitHub настройки"');
-        showGitHubDialog();
-        return;
-      }
-      
       document.getElementById('saved-layers-list').innerHTML = '<p>Загрузка...</p>';
       document.getElementById('overlay').style.display = 'block';
       document.getElementById('saved-dialog').style.display = 'block';
       
       try {
-        const { username, repo } = githubSettings;
+        const { username, repo, token } = githubSettings;
         const url = `https://api.github.com/repos/${username}/${repo}/contents/kml_layers`;
         
         const response = await fetch(url, {
           headers: {
-            'Authorization': `token ${githubSettings.token}`
+            'Authorization': `token ${token}`
           }
         });
         
