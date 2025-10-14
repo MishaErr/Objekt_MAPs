@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>KML-карта с GitHub-сохранением</title>
+  <title>KML-карта (GitHub Pages)</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -11,7 +11,7 @@
 
   <style>
     html, body, #map { height: 100%; margin: 0; }
-    #upload-btn, #github-btn, #saved-layers-btn {
+    #upload-btn, #saved-layers-btn {
       position: absolute;
       top: 10px;
       z-index: 1000;
@@ -22,9 +22,8 @@
       cursor: pointer;
     }
     #upload-btn { left: 10px; }
-    #github-btn { left: 130px; }
-    #saved-layers-btn { left: 270px; }
-    #dialog, #github-dialog, #saved-dialog {
+    #saved-layers-btn { left: 130px; }
+    #dialog, #saved-dialog {
       position: absolute;
       top: 50%;
       left: 50%;
@@ -40,7 +39,7 @@
       max-height: 80vh;
       overflow-y: auto;
     }
-    #dialog input, #dialog textarea, #github-dialog input {
+    #dialog input, #dialog textarea {
       width: 100%;
       margin: 5px 0 10px;
       padding: 5px;
@@ -64,17 +63,11 @@
       padding: 2px 5px;
       cursor: pointer;
     }
-    .status {
-      color: #666;
-      font-size: 12px;
-      margin: 5px 0;
-    }
   </style>
 </head>
 <body>
   <div id="map"></div>
   <button id="upload-btn">Загрузить KML</button>
-  <button id="github-btn">GitHub настройки</button>
   <button id="saved-layers-btn">Загрузить слои</button>
 
   <!-- Диалог загрузки -->
@@ -84,20 +77,8 @@
     <label>Название слоя:<br><input type="text" id="layer-name" value="Новый слой"></label><br>
     <label>Описание:<br><textarea id="layer-desc" rows="2">Описание слоя</textarea></label><br>
     <label>Цвет:<br><input type="color" id="layer-color" value="#ff0000"></label><br>
-    <div class="status" id="upload-status"></div>
-    <button onclick="applyLayer()">Сохранить и добавить</button>
+    <button onclick="applyLayer()">Добавить на карту</button>
     <button onclick="closeDialog()">Отмена</button>
-  </div>
-
-  <!-- Диалог GitHub настроек -->
-  <div id="github-dialog">
-    <h3>Настройки GitHub</h3>
-    <label>Username:<br><input type="text" id="github-username" placeholder="ваш-логин"></label><br>
-    <label>Repository:<br><input type="text" id="github-repo" placeholder="название-репозитория"></label><br>
-    <label>Token:<br><input type="password" id="github-token" placeholder="ghp_..."></label><br>
-    <div class="status" id="github-status"></div>
-    <button onclick="saveGitHubSettings()">Сохранить</button>
-    <button onclick="closeGitHubDialog()">Отмена</button>
   </div>
 
   <!-- Диалог сохраненных слоев -->
@@ -116,19 +97,9 @@
     }).addTo(map);
 
     let currentKmlData = null;
-    let currentFileName = '';
-
-    // GitHub настройки из localStorage
-    let githubSettings = JSON.parse(localStorage.getItem('githubSettings') || '{}');
 
     // Кнопка загрузки
     document.getElementById('upload-btn').onclick = () => {
-      if (!githubSettings.username || !githubSettings.repo || !githubSettings.token) {
-        alert('Сначала настройте GitHub в меню "GitHub настройки"');
-        showGitHubDialog();
-        return;
-      }
-      
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '.kml';
@@ -137,8 +108,7 @@
         const reader = new FileReader();
         reader.onload = () => {
           currentKmlData = reader.result;
-          currentFileName = file.name.replace('.kml', '');
-          document.getElementById('layer-name').value = currentFileName;
+          document.getElementById('layer-name').value = file.name.replace('.kml', '');
           showDialog();
         };
         reader.readAsText(file);
@@ -146,12 +116,10 @@
       input.click();
     };
 
-    // Кнопки меню
-    document.getElementById('github-btn').onclick = showGitHubDialog;
+    // Кнопка слоев
     document.getElementById('saved-layers-btn').onclick = loadLayersList;
 
     function showDialog() {
-      document.getElementById('upload-status').textContent = '';
       document.getElementById('overlay').style.display = 'block';
       document.getElementById('dialog').style.display = 'block';
     }
@@ -161,34 +129,9 @@
       document.getElementById('dialog').style.display = 'none';
     }
 
-    function showGitHubDialog() {
-      document.getElementById('github-username').value = githubSettings.username || '';
-      document.getElementById('github-repo').value = githubSettings.repo || '';
-      document.getElementById('github-token').value = githubSettings.token || '';
-      document.getElementById('github-status').textContent = '';
-      document.getElementById('overlay').style.display = 'block';
-      document.getElementById('github-dialog').style.display = 'block';
-    }
-
-    function closeGitHubDialog() {
-      document.getElementById('overlay').style.display = 'none';
-      document.getElementById('github-dialog').style.display = 'none';
-    }
-
     function closeSavedDialog() {
       document.getElementById('overlay').style.display = 'none';
       document.getElementById('saved-dialog').style.display = 'none';
-    }
-
-    function saveGitHubSettings() {
-      githubSettings = {
-        username: document.getElementById('github-username').value,
-        repo: document.getElementById('github-repo').value,
-        token: document.getElementById('github-token').value
-      };
-      localStorage.setItem('githubSettings', JSON.stringify(githubSettings));
-      document.getElementById('github-status').textContent = 'Настройки сохранены!';
-      setTimeout(closeGitHubDialog, 1000);
     }
 
     // Функция парсинга координат
@@ -200,89 +143,34 @@
       });
     }
 
-    async function applyLayer() {
+    function applyLayer() {
       const name = document.getElementById('layer-name').value || 'Без названия';
       const desc = document.getElementById('layer-desc').value;
       const color = document.getElementById('layer-color').value;
-      const timestamp = Date.now();
-      
-      document.getElementById('upload-status').textContent = 'Сохранение на GitHub...';
-      
-      try {
-        // 1. Сохраняем KML файл
-        const kmlFilename = `kml_layers/${timestamp}_${name.replace(/[^a-zA-Z0-9а-яА-Я]/g, '_')}.kml`;
-        await saveFileToGitHub(kmlFilename, currentKmlData);
-        
-        // 2. Создаем метаданные
-        const layerMetadata = {
-          id: timestamp,
-          name: name,
-          description: desc,
-          color: color,
-          kmlPath: kmlFilename,
-          createdAt: new Date().toISOString()
-        };
-        
-        // 3. Сохраняем метаданные
-        const metadataFilename = `kml_layers/${timestamp}_metadata.json`;
-        await saveFileToGitHub(metadataFilename, JSON.stringify(layerMetadata, null, 2));
-        
-        // 4. Добавляем на карту
-        addLayerToMap(currentKmlData, name, desc, color);
-        
-        document.getElementById('upload-status').textContent = 'Сохранено успешно!';
-        setTimeout(closeDialog, 1000);
-        
-      } catch (error) {
-        document.getElementById('upload-status').textContent = 'Ошибка: ' + error.message;
-        console.error(error);
-      }
-    }
 
-    async function saveFileToGitHub(filename, content) {
-      const { username, repo, token } = githubSettings;
-      const url = `https://api.github.com/repos/${username}/${repo}/contents/${filename}`;
-      
-      // Кодируем содержимое в base64
-      const encodedContent = btoa(unescape(encodeURIComponent(content)));
-      
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `token ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: `Add ${filename}`,
-          content: encodedContent
-        })
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Ошибка GitHub API');
-      }
+      addLayerToMap(currentKmlData, name, desc, color);
+      closeDialog();
     }
 
     function addLayerToMap(kmlData, name, desc, color) {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(kmlData, 'text/xml');
-      
+
       const layerGroup = L.featureGroup();
-      
+
       // Парсим Placemarks
       const placemarks = xmlDoc.getElementsByTagName('Placemark');
-      
+
       for (let i = 0; i < placemarks.length; i++) {
         const placemark = placemarks[i];
         const nameEl = placemark.getElementsByTagName('name')[0];
         const descriptionEl = placemark.getElementsByTagName('description')[0];
-        
+
         const placemarkName = nameEl ? nameEl.textContent : 'Объект';
         const placemarkDesc = descriptionEl ? descriptionEl.textContent : '';
-        
+
         const popupContent = `<b>${placemarkName}</b><br>${placemarkDesc || desc}`;
-        
+
         // Точки
         const point = placemark.getElementsByTagName('Point')[0];
         if (point) {
@@ -293,7 +181,7 @@
           layerGroup.addLayer(marker);
           continue;
         }
-        
+
         // Линии
         const lineString = placemark.getElementsByTagName('LineString')[0];
         if (lineString) {
@@ -308,7 +196,7 @@
           layerGroup.addLayer(polyline);
           continue;
         }
-        
+
         // Полигоны
         const polygon = placemark.getElementsByTagName('Polygon')[0];
         if (polygon) {
@@ -330,128 +218,59 @@
           }
         }
       }
-      
+
       layerGroup.addTo(map);
       map.fitBounds(layerGroup.getBounds());
     }
 
     async function loadLayersList() {
-      if (!githubSettings.username || !githubSettings.repo) {
-        alert('Сначала настройте GitHub в меню "GitHub настройки"');
-        showGitHubDialog();
-        return;
-      }
-      
       document.getElementById('saved-layers-list').innerHTML = '<p>Загрузка...</p>';
       document.getElementById('overlay').style.display = 'block';
       document.getElementById('saved-dialog').style.display = 'block';
-      
+
       try {
-        const { username, repo } = githubSettings;
-        const url = `https://api.github.com/repos/${username}/${repo}/contents/kml_layers`;
+        // URL GitHub Pages (замените на свой!)
+        const baseUrl = 'https://MishaErr.github.io/Objekt_MAPs/kml_layers/';
         
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `token ${githubSettings.token}`
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Не удалось получить список файлов');
-        }
-        
-        const files = await response.json();
-        
-        // Фильтруем метаданные
-        const metadataFiles = files.filter(file => file.name.endsWith('_metadata.json'));
-        
-        if (metadataFiles.length === 0) {
+        // Список файлов (их нужно вручную добавить)
+        const kmlFiles = [
+          { name: 'Дыманово.kml', url: baseUrl + 'Дыманово.kml' },
+          // Добавь сюда свои файлы
+        ];
+
+        if (kmlFiles.length === 0) {
           document.getElementById('saved-layers-list').innerHTML = '<p>Нет сохраненных слоев</p>';
           return;
         }
-        
+
         let html = '';
-        for (const file of metadataFiles) {
-          try {
-            const metadataResponse = await fetch(file.download_url);
-            const metadata = await metadataResponse.json();
-            html += `
-              <div class="saved-layer-item">
-                <strong>${metadata.name}</strong><br>
-                <small>${new Date(metadata.createdAt).toLocaleString()}</small><br>
-                <button onclick="loadLayerFromGitHub('${metadata.kmlPath}', '${metadata.name}', '${metadata.description}', '${metadata.color}')">Загрузить</button>
-                <button onclick="deleteLayer('${metadata.id}')">Удалить</button>
-              </div>
-            `;
-          } catch (e) {
-            console.error('Ошибка загрузки метаданных:', e);
-          }
+        for (const file of kmlFiles) {
+          html += `
+            <div class="saved-layer-item">
+              <strong>${file.name}</strong><br>
+              <button onclick="loadLayerFromUrl('${file.url}', '${file.name}')">Загрузить</button>
+            </div>
+          `;
         }
-        
+
         document.getElementById('saved-layers-list').innerHTML = html;
-        
+
       } catch (error) {
         document.getElementById('saved-layers-list').innerHTML = `<p>Ошибка: ${error.message}</p>`;
       }
     }
 
-    async function loadLayerFromGitHub(kmlPath, name, desc, color) {
+    async function loadLayerFromUrl(url, name) {
       try {
-        const { username, repo } = githubSettings;
-        const url = `https://raw.githubusercontent.com/${username}/${repo}/main/${kmlPath}`;
-        
         const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        
         const kmlData = await response.text();
-        
-        addLayerToMap(kmlData, name, desc, color);
+        addLayerToMap(kmlData, name, 'Загруженный слой', '#ff0000');
         closeSavedDialog();
-        
-      } catch (error) {
-        alert('Ошибка загрузки слоя: ' + error.message);
-      }
-    }
 
-    async function deleteLayer(layerId) {
-      if (!confirm('Удалить этот слой?')) return;
-      
-      try {
-        // Удаляем KML и metadata файлы
-        const filesToDelete = [
-          `kml_layers/${layerId}.kml`,
-          `kml_layers/${layerId}_metadata.json`
-        ];
-        
-        for (const filename of filesToDelete) {
-          const { username, repo, token } = githubSettings;
-          const url = `https://api.github.com/repos/${username}/${repo}/contents/${filename}`;
-          
-          // Получаем SHA файла для удаления
-          const fileInfoResponse = await fetch(url, {
-            headers: { 'Authorization': `token ${token}` }
-          });
-          
-          if (fileInfoResponse.ok) {
-            const fileInfo = await fileInfoResponse.json();
-            
-            await fetch(url, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': `token ${token}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                message: `Delete ${filename}`,
-                sha: fileInfo.sha
-              })
-            });
-          }
-        }
-        
-        alert('Слой удален!');
-        loadLayersList();
-        
       } catch (error) {
-        alert('Ошибка удаления: ' + error.message);
+        alert('Ошибка загрузки: ' + error.message);
       }
     }
   </script>
