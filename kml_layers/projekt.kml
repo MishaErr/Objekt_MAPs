@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+<Document>
+    <name>Точки_</name>
+    <Style id="pointStyle">
+        <IconStyle>
+            <color>FFFF0000</color>
+            <scale>1</scale>
+            <Icon><href>http://maps.google.com/mapfiles/kml/shapes/placemark_square.png</href></Icon>
+        </IconStyle>
+    </Style>
+    <Style id="lineStyle">
+        <LineStyle>
+            <color>FF00FFFF</color>
+            <width>2</width>
+            
+        </LineStyle>
+    </Style>
+    <Placemark>
+        <name>vv1</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1420794369,55.1609987603,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv2</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1420947402,55.1609784419,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv3</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1421136355,55.1609534483,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv4</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1424060638,55.1610801209,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv5</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1424216799,55.1610595325,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv6</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1424402621,55.1610348088,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv7</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.14273112,55.1611605841,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv8</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.142765318,55.1611152719,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv9</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1433215652,55.161307206,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv10</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1433557627,55.1612618936,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv11</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1436136482,55.1613796213,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv12</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1436478455,55.1613343089,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv13</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1438131164,55.1614386712,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv14</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1439701496,55.1614771111,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>vv15</name>
+        <description>Elevation: 160</description>
+        <styleUrl>#pointStyle</styleUrl>
+        <Point>
+            <coordinates>30.1440077831,55.1614276625,160</coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>Path</name>
+        <styleUrl>#lineStyle</styleUrl>
+        <LineString>
+            <coordinates>30.1420794369,55.1609987603,160 30.1420947402,55.1609784419,160 30.1421136355,55.1609534483,160 30.1424060638,55.1610801209,160 30.1424216799,55.1610595325,160 30.1424402621,55.1610348088,160 30.14273112,55.1611605841,160 30.142765318,55.1611152719,160 30.1433215652,55.161307206,160 30.1433557627,55.1612618936,160 30.1436136482,55.1613796213,160 30.1436478455,55.1613343089,160 30.1438131164,55.1614386712,160 30.1439701496,55.1614771111,160 30.1440077831,55.1614276625,160</coordinates>
+        </LineString>
+    </Placemark>
+</Document>
+</kml>
