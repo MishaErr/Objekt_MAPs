@@ -86,7 +86,7 @@ let destinationMarker = null;
 // Получаем выбранный тип маршрута
 function getTravelMode() {
   const selected = document.querySelector('input[name="travel"]:checked');
-  return selected ? selected.value : "driving";
+  return selected ? selected.value : "driving"; // driving | foot
 }
 
 // Обработчик клика по карте
@@ -102,28 +102,66 @@ map.on('click', e => {
     routeControl = null;
   }
 
-  // Получаем текущее местоположение пользователя
+  // Определяем текущее местоположение
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(pos => {
       const start = L.latLng(pos.coords.latitude, pos.coords.longitude);
       const profile = getTravelMode(); // "driving" или "foot"
-      
-      // 👇 Исправлено: правильное использование профиля в URL OSRM
-      routeControl = L.Routing.control({
-        waypoints: [start, dest],
-        lineOptions: {
-          styles: [{ color: profile === "foot" ? "#00b300" : "#0078ff", weight: 5 }]
-        },
-        router: L.Routing.osrmv1({
-          serviceUrl: `https://router.project-osrm.org/route/v1/${profile}`
-        }),
-        createMarker: function() { return null; },
-        routeWhileDragging: false,
-        addWaypoints: false,
-        draggableWaypoints: false,
-        fitSelectedRoutes: true,
-        show: false
-      }).addTo(map);
+
+      // Основной сервер OSRM
+      const servers = [
+        "https://router.project-osrm.org/route/v1/",
+        "https://routing.openstreetmap.de/routed-"
+      ];
+
+      function createRouter(serverIndex = 0) {
+        const base = servers[serverIndex];
+        let serviceUrl;
+
+        if (base.includes("routed-")) {
+          // сервер openstreetmap.de требует указания профиля в URL
+          serviceUrl = `${base}${profile}/`;
+        } else {
+          // стандартный OSRM сервер
+          serviceUrl = `${base}${profile}`;
+        }
+
+        return L.Routing.osrmv1({
+          serviceUrl: serviceUrl,
+          profile: profile, // важно: передаём отдельно, чтобы LRM не дублировал
+          timeout: 10000
+        });
+      }
+
+      // Пробуем построить маршрут через основной сервер
+      function tryRoute(serverIndex = 0) {
+        if (serverIndex >= servers.length) {
+          alert("Не удалось построить маршрут. Попробуйте позже.");
+          return;
+        }
+
+        routeControl = L.Routing.control({
+          waypoints: [start, dest],
+          lineOptions: {
+            styles: [{ color: profile === "foot" ? "#00b300" : "#0078ff", weight: 5 }]
+          },
+          router: createRouter(serverIndex),
+          createMarker: () => null,
+          routeWhileDragging: false,
+          addWaypoints: false,
+          draggableWaypoints: false,
+          fitSelectedRoutes: true,
+          show: false
+        })
+        .on("routingerror", () => {
+          console.warn("Маршрутизация не удалась, пробуем другой сервер...");
+          map.removeControl(routeControl);
+          tryRoute(serverIndex + 1);
+        })
+        .addTo(map);
+      }
+
+      tryRoute(); // запускаем первую попытку
     }, () => {
       alert("Не удалось определить ваше местоположение");
     });
@@ -131,3 +169,4 @@ map.on('click', e => {
     alert("Ваш браузер не поддерживает геолокацию");
   }
 });
+
