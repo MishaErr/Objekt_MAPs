@@ -9,7 +9,7 @@ const LegendControl = L.Control.extend({
   options: { position: 'bottomleft' },
   onAdd: function() {
     const container = L.DomUtil.create('div', 'leaflet-control legend');
-    container.innerHTML = '<span class="legend-title">Легенда</span><div id="legend-items"></div>';
+    container.innerHTML = '<span class="legend-title">Объекты</span><div id="legend-items"></div>';
     L.DomEvent.disableClickPropagation(container);
     L.DomEvent.disableScrollPropagation(container);
     return container;
