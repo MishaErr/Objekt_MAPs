@@ -1,16 +1,42 @@
-body { font-family: Arial, sans-serif; }
-
-.legend {
-  position: absolute;
-  bottom: 20px;
-  left: 10px;
-  background: white;
-  padding: 10px 14px;
-  border-radius: 8px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.3);
-  font-size: 14px;
-  line-height: 1.6;
-  z-index: 10000; /* добавь это */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+#map {
+  height: 100%;
+  width: 100%;
 }
 
-
+/* Легенда как Leaflet control */
+.leaflet-control.legend {
+  background: white;
+  padding: 8px 12px;
+  border-radius: 10px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.25);
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 240px;
+}
+.legend-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+  display: block;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+  cursor: pointer;
+}
+.legend-item:hover {
+  background: #f2f2f2;
+  border-radius: 6px;
+}
+.legend-line {
+  width: 26px;
+  height: 4px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
