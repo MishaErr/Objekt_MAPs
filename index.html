@@ -1,416 +1,70 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <title>KML-карта (MishaErr/Objekt_MAPs)</title>
   <meta charset="utf-8" />
+  <title>Моя онлайн карта</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Leaflet CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha512-sA+ePjD2sL3KxAI1SScV+0sO/0rKDFux4e7wLk9Nn7xybP1PZ0kC4XgU3v8AwEwD+Kv5t8e0Yl5Zzj+M4y0wLg=="
+    crossorigin=""
+  />
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="css/style.css">
 
   <style>
-    html, body, #map { height: 100%; margin: 0; }
-    #upload-btn, #saved-layers-btn {
+    html, body { height: 100%; margin: 0; padding: 0; }
+    #map { height: 100%; width: 100%; }
+    .legend {
       position: absolute;
-      top: 10px;
-      z-index: 1000;
+      bottom: 20px;
+      left: 10px;
+      background: white;
       padding: 10px;
-      background: white;
-      border: 2px solid rgba(0,0,0,0.2);
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    #upload-btn { left: 10px; }
-    #saved-layers-btn { left: 130px; }
-    #dialog, #saved-dialog {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border: 2px solid #333;
       border-radius: 8px;
-      z-index: 2000;
-      display: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      max-width: 400px;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    #dialog input, #dialog textarea {
-      width: 100%;
-      margin: 5px 0 10px;
-      padding: 5px;
-    }
-    #overlay {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.4);
-      z-index: 1500;
-      display: none;
-    }
-    .saved-layer-item {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 4px;
-    }
-    .saved-layer-item button {
-      margin-left: 10px;
-      padding: 2px 5px;
-      cursor: pointer;
-    }
-    .status {
-      color: #666;
-      font-size: 12px;
-      margin: 5px 0;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      font-size: 14px;
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
-  <button id="upload-btn">Загрузить KML</button>
-  <button id="saved-layers-btn">Загрузить слои</button>
 
-  <!-- Диалог загрузки -->
-  <div id="overlay"></div>
-  <div id="dialog">
-    <h3>Настройка слоя</h3>
-    <label>Название слоя:<br><input type="text" id="layer-name" value="Новый слой"></label><br>
-    <label>Описание:<br><textarea id="layer-desc" rows="2">Описание слоя</textarea></label><br>
-    <label>Цвет:<br><input type="color" id="layer-color" value="#ff0000"></label><br>
-    <div class="status" id="upload-status"></div>
-    <button onclick="applyLayer()">Сохранить и добавить</button>
-    <button onclick="closeDialog()">Отмена</button>
+  <div class="legend">
+    <b>Легенда</b><br>
+    🔴 Точки интереса<br>
+    🔵 Важные объекты<br>
+    🟢 Области наблюдения
   </div>
 
-  <!-- Диалог сохраненных слоев -->
-  <div id="saved-dialog">
-    <h3>Доступные слои</h3>
-    <div id="saved-layers-list"></div>
-    <button onclick="loadLayersList()">Обновить список</button>
-    <button onclick="closeSavedDialog()">Закрыть</button>
-  </div>
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha512-Zt39qz1KQ6dc8oZn0Gk8A6rjz6U8aE+5X6J24E6osWkPMey84hjYUrF+fH3+xLj7w8L0bZbqzxU5C1Wvf8Wluw=="
+    crossorigin="">
+  </script>
+
+  <!-- KML parser -->
+  <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
 
   <script>
-    // Инициализация карты
-    const map = L.map('map').setView([55.75, 37.62], 10);
+    // Создание карты
+    const map = L.map('map').setView([55.75, 37.62], 10); // Москва по умолчанию
+
+    // Подложка OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    let currentKmlData = null;
-    let currentFileName = '';
-
-    // GitHub настройки (уже вшиты)
-    const githubSettings = {
-      username: 'MishaErr',
-      repo: 'Objekt_MAPs',
-      token: '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'
-    };
-
-    // Кнопка загрузки
-    document.getElementById('upload-btn').onclick = () => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.kml';
-      input.onchange = e => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onload = () => {
-          currentKmlData = reader.result;
-          currentFileName = file.name.replace('.kml', '');
-          document.getElementById('layer-name').value = currentFileName;
-          showDialog();
-        };
-        reader.readAsText(file);
-      };
-      input.click();
-    };
-
-    // Кнопка слоев
-    document.getElementById('saved-layers-btn').onclick = loadLayersList;
-
-    function showDialog() {
-      document.getElementById('upload-status').textContent = '';
-      document.getElementById('overlay').style.display = 'block';
-      document.getElementById('dialog').style.display = 'block';
-    }
-
-    function closeDialog() {
-      document.getElementById('overlay').style.display = 'none';
-      document.getElementById('dialog').style.display = 'none';
-    }
-
-    function closeSavedDialog() {
-      document.getElementById('overlay').style.display = 'none';
-      document.getElementById('saved-dialog').style.display = 'none';
-    }
-
-    // Функция парсинга координат
-    function parseCoordinates(coordString) {
-      const coords = coordString.trim().split(/\s+/);
-      return coords.map(coord => {
-        const [lng, lat] = coord.split(',').map(parseFloat);
-        return [lat, lng];
-      });
-    }
-
-    async function applyLayer() {
-      const name = document.getElementById('layer-name').value || 'Без названия';
-      const desc = document.getElementById('layer-desc').value;
-      const color = document.getElementById('layer-color').value;
-      const timestamp = Date.now();
-      
-      document.getElementById('upload-status').textContent = 'Сохранение на GitHub...';
-      
-      try {
-        // 1. Сохраняем KML файл в папку kml_layers
-        const kmlFilename = `kml_layers/${timestamp}_${name.replace(/[^a-zA-Z0-9а-яА-Я]/g, '_')}.kml`;
-        await saveFileToGitHub(kmlFilename, currentKmlData);
-        
-        // 2. Создаем метаданные
-        const layerMetadata = {
-          id: timestamp,
-          name: name,
-          description: desc,
-          color: color,
-          kmlPath: kmlFilename,
-          createdAt: new Date().toISOString()
-        };
-        
-        // 3. Сохраняем метаданные
-        const metadataFilename = `kml_layers/${timestamp}_metadata.json`;
-        await saveFileToGitHub(metadataFilename, JSON.stringify(layerMetadata, null, 2));
-        
-        // 4. Добавляем на карту
-        addLayerToMap(currentKmlData, name, desc, color);
-        
-        document.getElementById('upload-status').textContent = 'Сохранено успешно!';
-        setTimeout(closeDialog, 1000);
-        
-      } catch (error) {
-        document.getElementById('upload-status').textContent = 'Ошибка: ' + error.message;
-        console.error(error);
-      }
-    }
-
-    async function saveFileToGitHub(filename, content) {
-      const { username, repo, token } = githubSettings;
-      const url = `https://api.github.com/repos/${username}/${repo}/contents/${filename}`;
-      
-      // Кодируем содержимое в base64
-      const encodedContent = btoa(unescape(encodeURIComponent(content)));
-      
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `token ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: `Add ${filename}`,
-          content: encodedContent
-        })
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Ошибка GitHub API');
-      }
-    }
-
-    function addLayerToMap(kmlData, name, desc, color) {
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(kmlData, 'text/xml');
-      
-      const layerGroup = L.featureGroup();
-      
-      // Парсим Placemarks
-      const placemarks = xmlDoc.getElementsByTagName('Placemark');
-      
-      for (let i = 0; i < placemarks.length; i++) {
-        const placemark = placemarks[i];
-        const nameEl = placemark.getElementsByTagName('name')[0];
-        const descriptionEl = placemark.getElementsByTagName('description')[0];
-        
-        const placemarkName = nameEl ? nameEl.textContent : 'Объект';
-        const placemarkDesc = descriptionEl ? descriptionEl.textContent : '';
-        
-        const popupContent = `<b>${placemarkName}</b><br>${placemarkDesc || desc}`;
-        
-        // Точки
-        const point = placemark.getElementsByTagName('Point')[0];
-        if (point) {
-          const coords = point.getElementsByTagName('coordinates')[0].textContent;
-          const latlng = parseCoordinates(coords)[0];
-          const marker = L.marker(latlng);
-          marker.bindPopup(popupContent);
-          layerGroup.addLayer(marker);
-          continue;
-        }
-        
-        // Линии
-        const lineString = placemark.getElementsByTagName('LineString')[0];
-        if (lineString) {
-          const coords = lineString.getElementsByTagName('coordinates')[0].textContent;
-          const latlngs = parseCoordinates(coords);
-          const polyline = L.polyline(latlngs, {
-            color: color,
-            weight: 3,
-            opacity: 0.7
-          });
-          polyline.bindPopup(popupContent);
-          layerGroup.addLayer(polyline);
-          continue;
-        }
-        
-        // Полигоны
-        const polygon = placemark.getElementsByTagName('Polygon')[0];
-        if (polygon) {
-          const outerBoundary = polygon.getElementsByTagName('outerBoundaryIs')[0];
-          if (outerBoundary) {
-            const linearRing = outerBoundary.getElementsByTagName('LinearRing')[0];
-            if (linearRing) {
-              const coords = linearRing.getElementsByTagName('coordinates')[0].textContent;
-              const latlngs = parseCoordinates(coords);
-              const polygonLayer = L.polygon(latlngs, {
-                color: color,
-                fillColor: color,
-                fillOpacity: 0.3,
-                weight: 2
-              });
-              polygonLayer.bindPopup(popupContent);
-              layerGroup.addLayer(polygonLayer);
-            }
-          }
-        }
-      }
-      
-      layerGroup.addTo(map);
-      map.fitBounds(layerGroup.getBounds());
-    }
-
-    async function loadLayersList() {
-      document.getElementById('saved-layers-list').innerHTML = '<p>Загрузка...</p>';
-      document.getElementById('overlay').style.display = 'block';
-      document.getElementById('saved-dialog').style.display = 'block';
-      
-      try {
-        const { username, repo, token } = githubSettings;
-        const url = `https://api.github.com/repos/${username}/${repo}/contents/kml_layers`;
-        
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `token ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Не удалось получить список файлов');
-        }
-        
-        const files = await response.json();
-        
-        // Фильтруем метаданные
-        const metadataFiles = files.filter(file => file.name.endsWith('_metadata.json'));
-        
-        if (metadataFiles.length === 0) {
-          document.getElementById('saved-layers-list').innerHTML = '<p>Нет сохраненных слоев</p>';
-          return;
-        }
-        
-        let html = '';
-        for (const file of metadataFiles) {
-          try {
-            const metadataResponse = await fetch(file.download_url);
-            const metadata = await metadataResponse.json();
-            html += `
-              <div class="saved-layer-item">
-                <strong>${metadata.name}</strong><br>
-                <small>${new Date(metadata.createdAt).toLocaleString()}</small><br>
-                <button onclick="loadLayerFromGitHub('${metadata.kmlPath}', '${metadata.name}', '${metadata.description}', '${metadata.color}')">Загрузить</button>
-                <button onclick="deleteLayer('${metadata.id}')">Удалить</button>
-              </div>
-            `;
-          } catch (e) {
-            console.error('Ошибка загрузки метаданных:', e);
-          }
-        }
-        
-        document.getElementById('saved-layers-list').innerHTML = html;
-        
-      } catch (error) {
-        document.getElementById('saved-layers-list').innerHTML = `<p>Ошибка: ${error.message}</p>`;
-      }
-    }
-
-    async function loadLayerFromGitHub(kmlPath, name, desc, color) {
-      try {
-        const { username, repo, token } = githubSettings;
-        const url = `https://raw.githubusercontent.com/${username}/${repo}/main/${kmlPath}`;
-        
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `token ${token}` // Для приватных репозиториев
-          }
-        });
-        const kmlData = await response.text();
-        
-        addLayerToMap(kmlData, name, desc, color);
-        closeSavedDialog();
-        
-      } catch (error) {
-        alert('Ошибка загрузки слоя: ' + error.message);
-      }
-    }
-
-    async function deleteLayer(layerId) {
-      if (!confirm('Удалить этот слой?')) return;
-      
-      try {
-        // Удаляем KML и metadata файлы
-        const filesToDelete = [
-          `kml_layers/${layerId}.kml`,
-          `kml_layers/${layerId}_metadata.json`
-        ];
-        
-        for (const filename of filesToDelete) {
-          const { username, repo, token } = githubSettings;
-          const url = `https://api.github.com/repos/${username}/${repo}/contents/${filename}`;
-          
-          // Получаем SHA файла для удаления
-          const fileInfoResponse = await fetch(url, {
-            headers: { 'Authorization': `token ${token}` }
-          });
-          
-          if (fileInfoResponse.ok) {
-            const fileInfo = await fileInfoResponse.json();
-            
-            await fetch(url, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': `token ${token}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                message: `Delete ${filename}`,
-                sha: fileInfo.sha
-              })
-            });
-          }
-        }
-        
-        alert('Слой удален!');
-        loadLayersList();
-        
-      } catch (error) {
-        alert('Ошибка удаления: ' + error.message);
-      }
-    }
+    // Загрузка KML-файла
+    omnivore.kml('kml_layers/mydata.kml').on('ready', function() {
+      map.fitBounds(this.getBounds());
+    }).addTo(map);
   </script>
 </body>
 </html>
