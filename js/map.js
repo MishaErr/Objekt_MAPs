@@ -106,14 +106,16 @@ map.on('click', e => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(pos => {
       const start = L.latLng(pos.coords.latitude, pos.coords.longitude);
-      const profile = getTravelMode(); // driving или foot
-      const osrmProfile = profile === "foot" ? "foot" : "car";
-
+      const profile = getTravelMode(); // "driving" или "foot"
+      
+      // 👇 Исправлено: правильное использование профиля в URL OSRM
       routeControl = L.Routing.control({
         waypoints: [start, dest],
-        lineOptions: { styles: [{ color: profile === "foot" ? "#00b300" : "#0078ff", weight: 5 }] },
+        lineOptions: {
+          styles: [{ color: profile === "foot" ? "#00b300" : "#0078ff", weight: 5 }]
+        },
         router: L.Routing.osrmv1({
-          serviceUrl: `https://router.project-osrm.org/route/v1/${osrmProfile}/`
+          serviceUrl: `https://router.project-osrm.org/route/v1/${profile}`
         }),
         createMarker: function() { return null; },
         routeWhileDragging: false,
