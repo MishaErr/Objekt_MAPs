@@ -2,19 +2,12 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <title>Моя онлайн карта</title>
+  <title>Онлайн карта с несколькими KML слоями</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Leaflet CSS -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha512-sA+ePjD2sL3KxAI1SScV+0sO/0rKDFux4e7wLk9Nn7xybP1PZ0kC4XgU3v8AwEwD+Kv5t8e0Yl5Zzj+M4y0wLg=="
-    crossorigin=""
-  />
-
-  <!-- Custom styles -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
 
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
@@ -24,47 +17,64 @@
       bottom: 20px;
       left: 10px;
       background: white;
-      padding: 10px;
+      padding: 10px 14px;
       border-radius: 8px;
       box-shadow: 0 0 5px rgba(0,0,0,0.3);
       font-size: 14px;
-      line-height: 1.4;
+      line-height: 1.6;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .legend-line {
+      width: 25px;
+      height: 4px;
+      border-radius: 2px;
+      flex-shrink: 0;
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
-
-  <div class="legend">
-    <b>Легенда</b><br>
-    🔴 Точки интереса<br>
-    🔵 Важные объекты<br>
-    🟢 Области наблюдения
-  </div>
-
-  <!-- Leaflet JS -->
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha512-Zt39qz1KQ6dc8oZn0Gk8A6rjz6U8aE+5X6J24E6osWkPMey84hjYUrF+fH3+xLj7w8L0bZbqzxU5C1Wvf8Wluw=="
-    crossorigin="">
-  </script>
-
-  <!-- KML parser -->
-  <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
+  <div id="legend" class="legend"><b>Легенда</b><br></div>
 
   <script>
-    // Создание карты
-    const map = L.map('map').setView([55.75, 37.62], 10); // Москва по умолчанию
-
-    // Подложка OpenStreetMap
+    const map = L.map('map').setView([55.75, 37.62], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Загрузка KML-файла
-    omnivore.kml('kml_layers/mydata.kml').on('ready', function() {
-      map.fitBounds(this.getBounds());
-    }).addTo(map);
+    // Загружаем список слоёв
+    fetch('layers.json')
+      .then(r => r.json())
+      .then(layers => {
+        const legend = document.getElementById('legend');
+        const boundsGroup = L.featureGroup();
+
+        layers.forEach(layer => {
+          const url = 'kml_layers/' + layer.file;
+          const color = layer.color || '#000000';
+          const kmlLayer = omnivore.kml(url);
+
+          kmlLayer.on('ready', function() {
+            boundsGroup.addLayer(kmlLayer);
+            map.fitBounds(boundsGroup.getBounds());
+          });
+
+          kmlLayer.addTo(map);
+
+          // Добавляем пункт в легенду
+          const item = document.createElement('div');
+          item.className = 'legend-item';
+          item.innerHTML = `<div class="legend-line" style="background:${color}"></div> ${layer.name}`;
+          legend.appendChild(item);
+        });
+      })
+      .catch(err => {
+        console.error('Ошибка при загрузке layers.json:', err);
+      });
   </script>
 </body>
 </html>
