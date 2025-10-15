@@ -2,79 +2,130 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <title>Онлайн карта с несколькими KML слоями</title>
+  <title>Онлайн карта с KML слоями</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
 
   <style>
-    html, body { height: 100%; margin: 0; padding: 0; }
-    #map { height: 100%; width: 100%; }
-    .legend {
-      position: absolute;
-      bottom: 20px;
-      left: 10px;
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    /* Стили легенды, встроенной как контрол Leaflet */
+    .leaflet-control.legend {
       background: white;
-      padding: 10px 14px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      padding: 8px 12px;
+      border-radius: 10px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.25);
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.5;
+      max-width: 240px;
+    }
+    .legend-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+      display: block;
     }
     .legend-item {
       display: flex;
       align-items: center;
       gap: 8px;
+      margin: 4px 0;
     }
     .legend-line {
-      width: 25px;
+      width: 26px;
       height: 4px;
       border-radius: 2px;
       flex-shrink: 0;
     }
   </style>
 </head>
+
 <body>
   <div id="map"></div>
-  <div id="legend" class="legend"><b>Легенда</b><br></div>
 
   <script>
-    const map = L.map('map').setView([55.1775, 30.1853], 12);
+    // Инициализация карты
+    const map = L.map('map').setView([55.75, 37.62], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Загружаем список слоёв
+    // === Создание контрола легенды ===
+    const LegendControl = L.Control.extend({
+      options: { position: 'bottomleft' },
+      onAdd: function() {
+        const container = L.DomUtil.create('div', 'leaflet-control legend');
+        container.innerHTML = '<span class="legend-title">Легенда</span><div id="legend-items"></div>';
+        L.DomEvent.disableClickPropagation(container);
+        L.DomEvent.disableScrollPropagation(container);
+        return container;
+      }
+    });
+
+    const legendControl = new LegendControl();
+    map.addControl(legendControl);
+
+    function addLegendItem(name, color) {
+      const legend = document.getElementById('legend-items');
+      if (!legend) return;
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `
+        <div class="legend-line" style="background:${color || '#000'}"></div>
+        <div>${name}</div>
+      `;
+      legend.appendChild(item);
+    }
+
+    // === Загрузка слоёв из layers.json ===
     fetch('layers.json')
       .then(r => r.json())
       .then(layers => {
-        const legend = document.getElementById('legend');
         const boundsGroup = L.featureGroup();
 
         layers.forEach(layer => {
           const url = 'kml_layers/' + layer.file;
           const color = layer.color || '#000000';
+          const name = layer.name || layer.file;
+
           const kmlLayer = omnivore.kml(url);
 
           kmlLayer.on('ready', function() {
+            try {
+              // Применяем базовую стилизацию к линиям/полигонам
+              kmlLayer.eachLayer(l => {
+                if (l.setStyle) {
+                  l.setStyle({
+                    color: color,
+                    weight: 3,
+                    opacity: 0.85
+                  });
+                }
+              });
+            } catch(e) { console.warn(e); }
+
             boundsGroup.addLayer(kmlLayer);
-            map.fitBounds(boundsGroup.getBounds());
+            if (boundsGroup.getBounds().isValid()) {
+              map.fitBounds(boundsGroup.getBounds());
+            }
           });
 
           kmlLayer.addTo(map);
-
-          // Добавляем пункт в легенду
-          const item = document.createElement('div');
-          item.className = 'legend-item';
-          item.innerHTML = `<div class="legend-line" style="background:${color}"></div> ${layer.name}`;
-          legend.appendChild(item);
+          addLegendItem(name, color);
         });
       })
-      .catch(err => {
-        console.error('Ошибка при загрузке layers.json:', err);
-      });
+      .catch(err => console.error('Ошибка при загрузке layers.json:', err));
   </script>
 </body>
 </html>
