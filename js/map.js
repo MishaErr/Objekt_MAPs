@@ -102,38 +102,37 @@ map.on('click', e => {
     routeControl = null;
   }
 
-  // Определяем текущее местоположение
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(pos => {
       const start = L.latLng(pos.coords.latitude, pos.coords.longitude);
-      const profile = getTravelMode(); // "driving" или "foot"
+      const profile = getTravelMode();
 
-      // Основной сервер OSRM
+      // список серверов
       const servers = [
-        "https://router.project-osrm.org/route/v1/",
-        "https://routing.openstreetmap.de/routed-"
+        "https://router.project-osrm.org/route/v1",
+        "https://routing.openstreetmap.de/routed"
       ];
 
+      // создаём маршрутизатор
       function createRouter(serverIndex = 0) {
         const base = servers[serverIndex];
         let serviceUrl;
 
-        if (base.includes("routed-")) {
-          // сервер openstreetmap.de требует указания профиля в URL
-          serviceUrl = `${base}${profile}/`;
+        if (base.includes("routed")) {
+          // пример: https://routing.openstreetmap.de/routed
+          serviceUrl = `${base}/${profile}`;
         } else {
-          // стандартный OSRM сервер
-          serviceUrl = `${base}${profile}`;
+          // пример: https://router.project-osrm.org/route/v1
+          serviceUrl = `${base}/${profile}`;
         }
 
         return L.Routing.osrmv1({
           serviceUrl: serviceUrl,
-          profile: profile, // важно: передаём отдельно, чтобы LRM не дублировал
+          profile: profile,
           timeout: 10000
         });
       }
 
-      // Пробуем построить маршрут через основной сервер
       function tryRoute(serverIndex = 0) {
         if (serverIndex >= servers.length) {
           alert("Не удалось построить маршрут. Попробуйте позже.");
@@ -161,7 +160,7 @@ map.on('click', e => {
         .addTo(map);
       }
 
-      tryRoute(); // запускаем первую попытку
+      tryRoute();
     }, () => {
       alert("Не удалось определить ваше местоположение");
     });
@@ -169,4 +168,3 @@ map.on('click', e => {
     alert("Ваш браузер не поддерживает геолокацию");
   }
 });
-
