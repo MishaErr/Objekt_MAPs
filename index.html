@@ -1,29 +1,36 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <title>Онлайн карта с KML слоями</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Leaflet -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Онлайн ГИС карта</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
-
-  <!-- Leaflet Routing Machine -->
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css"
-/>
-<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-  
-  <!-- Наши файлы -->
   <link rel="stylesheet" href="css/style.css" />
 </head>
-
 <body>
   <div id="map"></div>
 
+  <!-- Левая панель управления -->
+  <div id="control-panel" class="panel left-panel">
+    <h3>Маршрутизация</h3>
+    <div class="travel-buttons">
+      <button id="driveBtn" class="active">🚗</button>
+      <button id="walkBtn">🚶</button>
+    </div>
+    <button id="buildToLegend" title="Построить маршрут к выбранному объекту">🧭 Построить к объекту</button>
+    <button id="clearRoute">❌ Очистить маршрут</button>
+    <p class="hint">ПКМ — выбрать стартовую точку</p>
+  </div>
+
+  <!-- Правая панель легенды -->
+  <div id="legend" class="panel right-panel">
+    <h3>Легенда</h3>
+    <div id="legend-items"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
   <script src="js/map.js"></script>
 </body>
 </html>
