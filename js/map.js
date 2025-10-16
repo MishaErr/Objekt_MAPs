@@ -1,5 +1,5 @@
 // === Инициализация карты ===
-const map = L.map('map').setView([55.75, 37.62], 10);
+const map = L.map('map').setView([55.14, 30.16], 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
