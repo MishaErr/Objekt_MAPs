@@ -66,11 +66,33 @@ infoPanel.update = function(info) {
 };
 infoPanel.addTo(map);
 
+// === Глобальные переменные для маршрута ===
+let startMarker = null;
+let destinationMarker = null;
+let routeControl = null;
+let travelMode = "driving"; // режим по умолчанию
+
+// === Очистка маршрута ===
+function clearRoute() {
+  if (routeControl) {
+    map.removeControl(routeControl);
+    routeControl = null;
+  }
+  if (destinationMarker) {
+    map.removeLayer(destinationMarker);
+    destinationMarker = null;
+  }
+  if (startMarker) {
+    map.removeLayer(startMarker);
+    startMarker = null;
+  }
+  infoPanel.update();
+}
 
 // === Построение маршрута ===
 function buildRoute(start, dest) {
   clearRoute();
-  infoPanel.update(); // очистить инфо
+  infoPanel.update();
 
   const servers = [
     "https://router.project-osrm.org/route/v1",
@@ -78,9 +100,8 @@ function buildRoute(start, dest) {
   ];
 
   function createRouter(serverIndex = 0) {
-    const base = servers[serverIndex];
     return L.Routing.osrmv1({
-      serviceUrl: base, // без профиля!
+      serviceUrl: servers[serverIndex],
       profile: travelMode,
       timeout: 10000
     });
@@ -101,7 +122,7 @@ function buildRoute(start, dest) {
       createMarker: () => null,
       addWaypoints: false,
       fitSelectedRoutes: true,
-      show: false // скрываем встроенный блок
+      show: false
     })
       .on("routesfound", e => {
         const route = e.routes[0];
@@ -118,25 +139,27 @@ function buildRoute(start, dest) {
   tryRoute();
 }
 
-// === Очистка маршрута ===
-function clearRoute() {
-  if (routeControl) {
-    map.removeControl(routeControl);
-    routeControl = null;
+// === Обработка кликов по карте ===
+map.on("contextmenu", e => { // правая кнопка — старт
+  if (startMarker) map.removeLayer(startMarker);
+  startMarker = L.marker(e.latlng, { draggable: true }).addTo(map).bindPopup("Старт").openPopup();
+});
+
+map.on("click", e => { // левая кнопка — пункт назначения
+  if (!startMarker) {
+    alert("Сначала установите стартовую точку (правая кнопка мыши)");
+    return;
   }
-  if (destinationMarker) {
-    map.removeLayer(destinationMarker);
-    destinationMarker = null;
-  }
-  infoPanel.update();
-}
+  if (destinationMarker) map.removeLayer(destinationMarker);
+  destinationMarker = L.marker(e.latlng, { draggable: true }).addTo(map).bindPopup("Назначение").openPopup();
+  buildRoute(startMarker.getLatLng(), destinationMarker.getLatLng());
+});
 
 // === Кнопки выбора режима ===
 document.getElementById('driveBtn').onclick = () => {
   travelMode = "driving";
   document.getElementById('driveBtn').classList.add('active');
   document.getElementById('walkBtn').classList.remove('active');
-  // если уже есть маршрут — пересчитать
   if (startMarker && destinationMarker) buildRoute(startMarker.getLatLng(), destinationMarker.getLatLng());
 };
 
@@ -146,3 +169,7 @@ document.getElementById('walkBtn').onclick = () => {
   document.getElementById('driveBtn').classList.remove('active');
   if (startMarker && destinationMarker) buildRoute(startMarker.getLatLng(), destinationMarker.getLatLng());
 };
+
+// === Кнопка очистки ===
+document.getElementById('clearBtn').onclick = clearRoute;
+
