@@ -107,10 +107,14 @@ function buildRoute(start, dest) {
 
   function createRouter(serverIndex = 0) {
     const base = servers[serverIndex];
-    const serviceUrl = base.includes("routed") ? `${base}-${travelMode}` : `${base}/${travelMode}`;
+    // ⚙️ не добавляем профиль сюда, LRM сам вставит "/{profile}/"
+    const serviceUrl = base.includes("routed")
+      ? `${base}` // -> https://routing.openstreetmap.de/routed
+      : `${base}`; // -> https://router.project-osrm.org/route/v1
+
     return L.Routing.osrmv1({
-      serviceUrl,
-      profile: travelMode,
+      serviceUrl: serviceUrl,
+      profile: travelMode, // LRM сам добавит /driving/ или /foot/
       timeout: 10000
     });
   }
@@ -120,21 +124,26 @@ function buildRoute(start, dest) {
       alert("Не удалось построить маршрут. Попробуйте позже.");
       return;
     }
+
     routeControl = L.Routing.control({
       waypoints: [start, dest],
       lineOptions: {
-        styles: [{ color: travelMode === "foot" ? "#00b300" : "#0078ff", weight: 5 }]
+        styles: [
+          { color: travelMode === "foot" ? "#00b300" : "#0078ff", weight: 5 }
+        ]
       },
       router: createRouter(i),
       createMarker: () => null,
       addWaypoints: false,
       fitSelectedRoutes: true,
       show: false
-    }).on("routingerror", () => {
-      console.warn("Ошибка маршрута, пробуем другой сервер...");
-      map.removeControl(routeControl);
-      tryRoute(i + 1);
-    }).addTo(map);
+    })
+      .on("routingerror", () => {
+        console.warn("Ошибка маршрута, пробуем другой сервер...");
+        map.removeControl(routeControl);
+        tryRoute(i + 1);
+      })
+      .addTo(map);
   }
 
   tryRoute();
