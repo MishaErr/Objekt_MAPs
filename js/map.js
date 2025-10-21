@@ -50,55 +50,27 @@ fetch('layers.json')
     });
   });
 
-// === Маршрутизация ===
-function clearRoute() {
-  if (routeControl) {
-    map.removeControl(routeControl);
-    routeControl = null;
-  }
-  if (destinationMarker) {
-    map.removeLayer(destinationMarker);
-    destinationMarker = null;
-  }
-}
-
-document.getElementById('clearRoute').onclick = clearRoute;
-
-// Выбор режима
-document.getElementById('driveBtn').onclick = () => {
-  travelMode = "driving";
-  document.getElementById('driveBtn').classList.add('active');
-  document.getElementById('walkBtn').classList.remove('active');
+// === Панель информации о маршруте ===
+const infoPanel = L.control({ position: 'bottomleft' });
+infoPanel.onAdd = function() {
+  this._div = L.DomUtil.create('div', 'route-info');
+  this.update();
+  return this._div;
 };
-document.getElementById('walkBtn').onclick = () => {
-  travelMode = "foot";
-  document.getElementById('walkBtn').classList.add('active');
-  document.getElementById('driveBtn').classList.remove('active');
-};
-
-// ПКМ — выбрать стартовую точку
-map.on('contextmenu', e => {
-  if (startMarker) map.removeLayer(startMarker);
-  startMarker = L.marker(e.latlng, { draggable: true }).addTo(map);
-  alert("Стартовая точка установлена. Теперь выберите точку назначения кликом на карте.");
-});
-
-// ЛКМ — выбрать пункт назначения и построить маршрут
-map.on('click', e => {
-  if (!startMarker) {
-    alert("Сначала укажите стартовую точку (ПКМ на карте)");
-    return;
+infoPanel.update = function(info) {
+  if (!info) {
+    this._div.innerHTML = '';
+  } else {
+    this._div.innerHTML = `📏 ${(info.distance / 1000).toFixed(1)} км<br>⏱️ ${(info.time / 60).toFixed(0)} мин`;
   }
+};
+infoPanel.addTo(map);
 
-  const dest = e.latlng;
-  if (destinationMarker) map.removeLayer(destinationMarker);
-  destinationMarker = L.marker(dest).addTo(map);
 
-  buildRoute(startMarker.getLatLng(), dest);
-});
-
+// === Построение маршрута ===
 function buildRoute(start, dest) {
   clearRoute();
+  infoPanel.update(); // очистить инфо
 
   const servers = [
     "https://router.project-osrm.org/route/v1",
@@ -107,14 +79,9 @@ function buildRoute(start, dest) {
 
   function createRouter(serverIndex = 0) {
     const base = servers[serverIndex];
-    // ⚙️ не добавляем профиль сюда, LRM сам вставит "/{profile}/"
-    const serviceUrl = base.includes("routed")
-      ? `${base}` // -> https://routing.openstreetmap.de/routed
-      : `${base}`; // -> https://router.project-osrm.org/route/v1
-
     return L.Routing.osrmv1({
-      serviceUrl: serviceUrl,
-      profile: travelMode, // LRM сам добавит /driving/ или /foot/
+      serviceUrl: base, // без профиля!
+      profile: travelMode,
       timeout: 10000
     });
   }
@@ -128,16 +95,18 @@ function buildRoute(start, dest) {
     routeControl = L.Routing.control({
       waypoints: [start, dest],
       lineOptions: {
-        styles: [
-          { color: travelMode === "foot" ? "#00b300" : "#0078ff", weight: 5 }
-        ]
+        styles: [{ color: travelMode === "foot" ? "#00b300" : "#0078ff", weight: 5 }]
       },
       router: createRouter(i),
       createMarker: () => null,
       addWaypoints: false,
       fitSelectedRoutes: true,
-      show: false
+      show: false // скрываем встроенный блок
     })
+      .on("routesfound", e => {
+        const route = e.routes[0];
+        infoPanel.update({ distance: route.summary.totalDistance, time: route.summary.totalTime });
+      })
       .on("routingerror", () => {
         console.warn("Ошибка маршрута, пробуем другой сервер...");
         map.removeControl(routeControl);
@@ -149,19 +118,31 @@ function buildRoute(start, dest) {
   tryRoute();
 }
 
-// 🧭 Построить маршрут к выбранному объекту
-document.getElementById('buildToLegend').onclick = () => {
-  if (!selectedLayer) {
-    alert("Сначала выберите объект в легенде.");
-    return;
+// === Очистка маршрута ===
+function clearRoute() {
+  if (routeControl) {
+    map.removeControl(routeControl);
+    routeControl = null;
   }
-  if (!startMarker) {
-    alert("Сначала укажите стартовую точку (ПКМ на карте).");
-    return;
+  if (destinationMarker) {
+    map.removeLayer(destinationMarker);
+    destinationMarker = null;
   }
-  const l = layerObjects[selectedLayer];
-  if (l && l.getBounds().isValid()) {
-    const dest = l.getBounds().getCenter();
-    buildRoute(startMarker.getLatLng(), dest);
-  }
+  infoPanel.update();
+}
+
+// === Кнопки выбора режима ===
+document.getElementById('driveBtn').onclick = () => {
+  travelMode = "driving";
+  document.getElementById('driveBtn').classList.add('active');
+  document.getElementById('walkBtn').classList.remove('active');
+  // если уже есть маршрут — пересчитать
+  if (startMarker && destinationMarker) buildRoute(startMarker.getLatLng(), destinationMarker.getLatLng());
+};
+
+document.getElementById('walkBtn').onclick = () => {
+  travelMode = "foot";
+  document.getElementById('walkBtn').classList.add('active');
+  document.getElementById('driveBtn').classList.remove('active');
+  if (startMarker && destinationMarker) buildRoute(startMarker.getLatLng(), destinationMarker.getLatLng());
 };
