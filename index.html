@@ -1,72 +1,30 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <title>Objekt MAPs — карта</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ГИС-платформа</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-kml@1.0.1/L.KML.js"></script>
 </head>
 <body>
   <div id="map"></div>
 
-  <!-- ЛЕВАЯ ПАНЕЛЬ УПРАВЛЕНИЯ (адаптивно свертываемая на мобилках) -->
-  <div id="left-panel" class="panel">
-    <div class="panel-row top">
-      <div class="title">Маршрутизация</div>
-      <button id="panel-toggle" class="icon-btn" title="Свернуть/развернуть">☰</button>
-    </div>
-
-    <div class="panel-block">
-      <div class="label">Режим</div>
-      <div class="travel-buttons">
-        <button id="driveBtn" class="mode-btn active" data-mode="driving">🚗 Авто</button>
-        <button id="walkBtn" class="mode-btn" data-mode="foot">🚶 Пешком</button>
-      </div>
-    </div>
-
-    <div class="panel-block">
-      <div class="label">Старт</div>
-      <button id="use-location" class="small-btn">📍 Текущее местоположение</button>
-      <input id="start-input" class="addr-input" placeholder="Введите адрес старта" />
-      <button id="geocode-start" class="small-btn">🔎 Найти</button>
-    </div>
-
-    <div class="panel-block">
-      <div class="label">Финиш</div>
-      <div class="hint">ЛКМ — установить финиш; ПКМ — установить старт</div>
-      <input id="dest-input" class="addr-input" placeholder="Введите адрес назначения" />
-      <button id="geocode-dest" class="small-btn">🔎 Найти</button>
-    </div>
-
-    <div class="panel-block">
-      <button id="build-route" class="big-btn">🧭 Построить маршрут</button>
-      <button id="clear-route" class="big-btn secondary">❌ Очистить маршрут</button>
-    </div>
-
-    <div class="panel-block small muted">
-      <div>Подсказка: ПКМ — задать старт; ЛКМ — задать финиш</div>
-    </div>
+  <!-- Floating buttons -->
+  <div id="fab-container">
+    <button id="nav-btn" class="fab" title="Навигация">🧭</button>
+    <button id="layers-btn" class="fab" title="Слои">🗺️</button>
+    <button id="basemap-btn" class="fab" title="Карты">🧰</button>
   </div>
 
-  <!-- ПРАВАЯ ПАНЕЛЬ — ЛЕГЕНДА -->
-  <div id="right-panel" class="panel legend-panel">
-    <div class="panel-row top">
-      <div class="title">Слои</div>
-    </div>
-    <div id="legend-items" class="legend-items"></div>
+  <!-- Панель слоёв -->
+  <div id="layers-panel" class="fab-panel">
+    <h3>Объекты</h3>
+    <div id="layers-list"></div>
   </div>
 
-  <!-- Подключаем библиотеки и наш скрипт -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
-  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-
-  <!-- Конфигурация (опционально: вставьте ваш ORS API KEY сюда) -->
-  <script src="js/config.js"></script>
-
-  <!-- Основной код карты -->
-  <script src="js/map.js"></script>
+  <script type="module" src="js/map.js"></script>
 </body>
 </html>
