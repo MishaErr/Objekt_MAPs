@@ -1,9 +1,11 @@
 // ui.js — отвечает за всплывающие панели и выбор режима
+import { BASE_LAYERS } from './map_layers.js';
+
 export function initUI({ onModeChange, onBuildRoute, onClearRoute, onLayerPanelToggle, onBaseMapChange }) {
   const navBtn = document.getElementById('nav-btn');
   const layersBtn = document.getElementById('layers-btn');
   const baseBtn = document.getElementById('basemap-btn');
-
+  
   // создаём мини-панели
   const navPanel = createNavPanel();
   const layersPanel = document.getElementById('right-panel');
