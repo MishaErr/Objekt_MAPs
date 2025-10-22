@@ -4,10 +4,23 @@
 const ORS_KEY = typeof ORS_API_KEY !== "undefined" ? ORS_API_KEY : "";
 
 // --- Инициализация карты ---
-const map = L.map('map').setView([55.75, 37.62], 10);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors'
-}).addTo(map);
+import { initUI } from './ui.js';
+import { BASE_LAYERS } from './map_layers.js';
+
+const map = L.map('map', { zoomControl: true }).setView([55.14, 30.16], 12);
+let currentBase = BASE_LAYERS["OSM"].addTo(map);
+
+initUI({
+  onModeChange: mode => { travelMode = mode; rebuildRouteIfNeeded(); },
+  onBuildRoute: () => buildCurrentRoute(),
+  onClearRoute: clearRoute,
+  onLayerPanelToggle: toggleLayerPanel,
+  onBaseMapChange: name => {
+    if (currentBase) map.removeLayer(currentBase);
+    currentBase = BASE_LAYERS[name].addTo(map);
+  }
+});
+
 
 // контейнеры слоёв
 const layerObjects = {}; // name -> layer (featureGroup)
