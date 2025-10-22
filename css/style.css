@@ -109,3 +109,48 @@ html, body, #map {
   background: #0078ff;
   color: white;
 }
+
+/* Кнопки в панели навигации */
+.nav-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.big-btn {
+  background: #0078ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 15px;
+  cursor: pointer;
+}
+.big-btn.secondary {
+  background: #ddd;
+  color: #333;
+}
+
+.mode-select {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 6px;
+}
+.mode-select button {
+  width: 45px; height: 45px;
+  border-radius: 50%;
+  font-size: 20px;
+  border: 1px solid #ccc;
+  background: white;
+}
+.mode-select button.active {
+  background: #0078ff; color: white;
+}
+
+#route-info {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+}
