@@ -1,10 +1,11 @@
 import { BASE_LAYERS } from './map_layers.js';
 import { initUI } from './ui.js';
 import { initNavigation } from './navigation.js';
-initNavigation(map);
+
 
 const map = L.map('map').setView([55.14, 30.16], 12);
 let currentBase = BASE_LAYERS["OpenStreetMap"].addTo(map);
+initNavigation(map);
 
 // UI
 const { basePanel, layersPanel } = initUI({
