@@ -1,4 +1,10 @@
-/* Floating action buttons (FABs) */
+html, body, #map {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* FAB контейнер */
 #fab-container {
   position: absolute;
   bottom: 80px;
@@ -8,57 +14,98 @@
   gap: 10px;
   z-index: 10010;
 }
+
 .fab {
-  width: 48px; height: 48px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   border: none;
   background: #0078ff;
-  color: white;
+  color: #fff;
   font-size: 22px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: 0.2s;
 }
-.fab:hover { transform: scale(1.05); }
+.fab:hover { transform: scale(1.1); }
 
-/* Мини-панели */
+/* Панели */
 .fab-panel {
   position: absolute;
-  bottom: 140px;
-  right: 70px;
-  width: 240px;
-  background: rgba(255,255,255,0.98);
+  background: rgba(255,255,255,0.97);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-  padding: 8px;
+  padding: 10px;
   display: none;
-  flex-direction: column;
   z-index: 10009;
 }
-.fab-panel.visible { display: flex; }
 
-/* Кнопки режима транспорта */
-.mode-select {
-  display: flex; justify-content: space-between; margin-top: 4px;
-}
-.mode-select button {
-  width: 50px; height: 50px;
-  border-radius: 50%;
-  border: 1px solid #ddd;
-  font-size: 22px;
-  background: white;
-  cursor: pointer;
-}
-.mode-select button.active {
-  background: #0078ff; color: white; border-color: #0078ff;
+.fab-panel.visible {
+  display: block;
 }
 
-/* Панель выбора базовой карты */
-.basemap-list button {
-  text-align: left;
-  padding: 6px 10px;
-  border: none;
+#layers-panel {
+  top: 70px;
+  right: 12px;
+  width: 250px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Список слоёв */
+#layers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.layer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: #f9f9f9;
   border-radius: 8px;
-  margin: 4px 0;
+  padding: 6px 8px;
+}
+
+.layer-actions button {
+  background: none;
+  border: none;
   cursor: pointer;
+  font-size: 18px;
+}
+
+.layer-actions button:hover {
+  transform: scale(1.15);
+}
+
+/* Панель базовых карт */
+.basemap-panel {
+  position: absolute;
+  bottom: 150px;
+  right: 70px;
+  width: 220px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  padding: 8px;
+  display: none;
+  z-index: 10009;
+}
+
+.basemap-panel.visible { display: block; }
+
+.basemap-panel button {
+  width: 100%;
+  border: none;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 6px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.basemap-panel button:hover {
+  background: #0078ff;
+  color: white;
 }
