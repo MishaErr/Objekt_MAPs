@@ -87,5 +87,3 @@ export function initUI({ onBaseMapChange }) {
     });
     return p;
   }
-}
-
