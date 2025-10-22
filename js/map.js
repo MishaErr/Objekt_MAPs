@@ -5,12 +5,12 @@ import { initNavigation } from './navigation.js';
 
 const map = L.map('map').setView([55.14, 30.16], 12);
 let currentBase = BASE_LAYERS["OpenStreetMap"].addTo(map);
-initNavigation(map);
 
 // UI
 const { basePanel, layersPanel } = initUI({
   onBaseMapChange: switchBase,
 });
+initNavigation(map);
 
 // наполняем панель базовых карт
 for (const name in BASE_LAYERS) {
