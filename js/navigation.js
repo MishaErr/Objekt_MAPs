@@ -1,7 +1,5 @@
 import { ORS_API_KEY } from './config.js';
 
-console.log("ORS key =", ORS_API_KEY);
-
 export function initNavigation(map) {
   let startMarker = null;
   let destMarker = null;
