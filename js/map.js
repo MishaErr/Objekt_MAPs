@@ -7,9 +7,16 @@ const map = L.map('map').setView([55.14, 30.16], 12);
 let currentBase = BASE_LAYERS["OpenStreetMap"].addTo(map);
 
 // UI
-const { basePanel, layersPanel } = initUI({
-  onBaseMapChange: switchBase,
+const layersPanel = document.getElementById('layers-panel');
+const basePanel = document.createElement('div');
+basePanel.className = 'basemap-panel';
+document.body.appendChild(basePanel);
+
+// initUI только назначает обработчики кнопок
+initUI({
+  onBaseMapChange: switchBase
 });
+
 initNavigation(map);
 
 // наполняем панель базовых карт
