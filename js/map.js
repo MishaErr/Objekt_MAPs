@@ -4,12 +4,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-let routeControl = null;
-let destinationMarker = null;
-let startMarker = null;
-let selectedLayer = null;
-let travelMode = "driving"; // driving | foot
-
 const layerObjects = {};
 
 // === Загрузка KML ===
