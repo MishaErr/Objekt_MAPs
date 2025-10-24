@@ -1,4 +1,3 @@
-
 export const BASE_LAYERS = {
   "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
   "Yandex": L.tileLayer('https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}', {attribution: '© Yandex'}),
