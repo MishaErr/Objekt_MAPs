@@ -1,0 +1,96 @@
+/* Стиль новой навигации */
+#nav-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: translateY(80%);
+  z-index: 10020;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#nav-panel.open {
+  transform: translateY(0);
+}
+
+.nav-header {
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+.nav-header div {
+  width: 40px;
+  height: 4px;
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.nav-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav-inputs input {
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.nav-modes {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 4px;
+}
+
+.nav-modes button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #f4f4f4;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.nav-modes button.active {
+  background: #0078ff;
+  color: white;
+}
+
+#nav-build,
+#nav-clear {
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+  background: #0078ff;
+  color: white;
+  font-weight: bold;
+}
+
+#nav-clear {
+  background: #ccc;
+  color: black;
+}
+
+#route-info {
+  text-align: center;
+  font-weight: bold;
+  padding-top: 4px;
+}
