@@ -1,6 +1,5 @@
 [
   { "file": "Дыманово.kml", "name": "Дыманово", "color": "#ff0000" },
   { "file": "projekt.kml", "name": "старые проекты", "color": "#0000ff" },
-  { "file": "borders.kml", "name": "Границы", "color": "#00ff00" },
-  { "file": "points.kml", "name": "Точки интереса", "color": "#ffa500" }
 ]
+
