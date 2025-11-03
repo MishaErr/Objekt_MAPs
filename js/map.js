@@ -37,10 +37,9 @@ async function loadLayers() {
       if (!file) continue;
       try {
         const kmlText = await fetch('kml_layers/' + file).then(r => r.text());
-        const parser = new DOMParser();
-        const kml = parser.parseFromString(kmlText, 'text/xml');
-        // L.KML is provided by leaflet KML plugin
-        const kmlLayer = new L.KML(kml);
+        const blob = new Blob([kmlText], { type: 'application/vnd.google-earth.kml+xml' });
+        const url = URL.createObjectURL(blob);
+        const kmlLayer = new L.KML(url);
         // create feature group to control visibility
         const fg = L.featureGroup();
         // when kml layer loaded, move inner layers to fg
