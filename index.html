@@ -1,29 +1,27 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ГИС-платформа</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Objekt_MAPs — карта</title>
+
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/navigation.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-kml@1.0.1/L.KML.js"></script>
+  <!-- Our styles -->
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div id="map"></div>
 
-  <div id="fab-container">
-    <button id="nav-btn" class="fab" title="Навигация">🧭</button>
-    <button id="layers-btn" class="fab" title="Слои">🗺️</button>
-    <button id="basemap-btn" class="fab" title="Карты">🧰</button>
-  </div>
+  <!-- Optional: container for layer panel (ui.js will create if missing) -->
+  <div id="layers-panel-placeholder" style="display:none"></div>
 
-  <div id="layers-panel" class="fab-panel">
-    <h3>Слои</h3>
-    <div id="layers-list"></div>
-  </div>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet KML plugin (simple parser) -->
+  <script src="https://unpkg.com/leaflet-plugins/layer/vector/KML.js"></script>
 
+  <!-- main module -->
   <script type="module" src="js/map.js"></script>
 </body>
 </html>
