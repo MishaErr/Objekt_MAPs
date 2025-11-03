@@ -90,3 +90,65 @@ html, body, #map { height: 100%; margin: 0; padding: 0; font-family: Inter, syst
   .route-panel { left: 8px; right: 8px; bottom: 80px; width: auto; max-width: calc(100% - 16px); }
   .rp-buttons { flex-direction: row; }
 }
+.layers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background: #fff;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+.layers-list {
+  background: rgba(255,255,255,0.95);
+  padding: 6px;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.layer-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  background: #f8f8f8;
+  padding: 6px 8px;
+  transition: background 0.2s;
+}
+.layer-item:hover { background: #eef3ff; }
+.layer-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+.layer-color {
+  width: 24px;
+  height: 6px;
+  border-radius: 3px;
+}
+.layer-name {
+  flex: 1;
+  font-weight: 600;
+  color: #333;
+}
+.layer-actions {
+  display: flex;
+  gap: 4px;
+}
+.layer-btn {
+  border: none;
+  background: #fff;
+  border-radius: 6px;
+  padding: 2px 5px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.layer-btn:hover {
+  background: #dde6ff;
+}
