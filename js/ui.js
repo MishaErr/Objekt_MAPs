@@ -58,10 +58,13 @@ export function initUI({ onBaseMapChange }) {
     layersPanel.style.overflow = 'auto';
     layersPanel.style.zIndex = '10025';
     layersPanel.style.display = 'none';
-    layersPanel.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <strong>Слои</strong>
-      <button id="layers-close" style="border:none;background:transparent;cursor:pointer">✕</button>
-    </div><div id="layers-list" style="display:flex;flex-direction:column;gap:6px"></div>`;
+  layersPanel.innerHTML = `
+  <div class="layers-header">
+    <strong>Объекты</strong>
+    <button id="layers-close" class="btn-close">✕</button>
+  </div>
+  <div id="layers-list" class="layers-list"></div>
+`;
     document.body.appendChild(layersPanel);
     document.getElementById('layers-close').onclick = () => layersPanel.style.display = 'none';
   }
