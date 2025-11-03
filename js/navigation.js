@@ -31,7 +31,9 @@ export function initNavigation(map, controls = {}) {
         <button data-mode="driving-car" class="rp-mode active">🚗</button>
         <button data-mode="foot-walking" class="rp-mode">🚶</button>
         <button data-mode="cycling-regular" class="rp-mode">🚴</button>
-        <button data-mode="driving-hgv" class="rp-mode">🛻</button>
+        <button data-mode="driving-hgv" class="rp-mode" title="Грузовой транспорт">
+  <img src="./icons/truck.svg" alt="truck" style="width:20px;height:20px;vertical-align:middle;">
+</button>
       </div>
       <div class="rp-row rp-actions">
         <button id="rp-build" class="rp-build">Построить</button>
