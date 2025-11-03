@@ -69,58 +69,51 @@ async function loadLayers() {
 function addLayerItem(container, name, fg) {
   const item = document.createElement('div');
   item.className = 'layer-item';
-  item.style.display = 'flex';
-  item.style.justifyContent = 'space-between';
-  item.style.alignItems = 'center';
-  item.style.padding = '6px';
-  item.style.borderRadius = '8px';
-  item.style.background = '#fff';
-  item.style.marginBottom = '6px';
 
-  const left = document.createElement('div');
-  left.style.display='flex'; left.style.alignItems='center'; left.style.gap='8px';
-  left.innerHTML = `<div style="width:28px;height:8px;background:#ccc;border-radius:6px"></div><div style="font-weight:600">${name}</div>`;
-  left.onclick = () => {
-    if (fg && fg.getBounds && fg.getBounds().isValid()) map.flyToBounds(fg.getBounds(), { maxZoom: 15 });
-  };
+  item.innerHTML = `
+    <div class="layer-line">
+      <span class="layer-color" style="background:${fg.color || '#999'}"></span>
+      <span class="layer-name">${name}</span>
+      <div class="layer-actions">
+        <button class="layer-btn toggle" title="Показать/Скрыть">👁️</button>
+        <button class="layer-btn start" title="К началу">↩️</button>
+        <button class="layer-btn end" title="К концу">↪️</button>
+        <button class="layer-btn route" title="Маршрут к точке">🧭</button>
+      </div>
+    </div>
+  `;
 
-  const actions = document.createElement('div');
-  actions.style.display='flex'; actions.style.gap='6px';
-  const eye = document.createElement('button'); eye.innerHTML='👁️'; eye.title='Показать/Скрыть';
-  const startBtn = document.createElement('button'); startBtn.innerHTML='↩️'; startBtn.title='К началу';
-  const endBtn = document.createElement('button'); endBtn.innerHTML='↪️'; endBtn.title='К концу';
-  const routeBtn = document.createElement('button'); routeBtn.innerHTML='🧭'; routeBtn.title='Маршрут к первой точке';
+  const toggle = item.querySelector('.toggle');
+  const startBtn = item.querySelector('.start');
+  const endBtn = item.querySelector('.end');
+  const routeBtn = item.querySelector('.route');
 
   let visible = true;
-  eye.onclick = () => {
-    if (visible) { try{ map.removeLayer(fg); }catch(e){} eye.innerHTML='🚫'; visible=false; }
-    else { try{ fg.addTo(map); }catch(e){} eye.innerHTML='👁️'; visible=true; }
+  toggle.onclick = () => {
+    if (visible) { map.removeLayer(fg); toggle.textContent = '🚫'; }
+    else { fg.addTo(map); toggle.textContent = '👁️'; }
+    visible = !visible;
   };
 
   startBtn.onclick = () => {
     const pts = extractCoords(fg);
     if (pts.length) map.flyTo([pts[0][1], pts[0][0]], 15);
-    else alert('Нет точек в слое');
   };
   endBtn.onclick = () => {
     const pts = extractCoords(fg);
-    if (pts.length) { const p = pts[pts.length-1]; map.flyTo([p[1], p[0]], 15); }
-    else alert('Нет точек в слое');
-  };
-  routeBtn.onclick = async () => {
-    const pts = extractCoords(fg);
-    if (!pts.length) return alert('Нет точек в слое');
-    const p = pts[0];
-    if (window.routeUiApi && typeof window.routeUiApi.setDest==='function') {
-      await window.routeUiApi.setDest(L.latLng(p[1], p[0]));
-      if (window.routeUiApi && typeof window.routeUiApi.buildRoute === 'function') window.routeUiApi.buildRoute();
-    } else {
+    if (pts.length) {
+      const p = pts[pts.length - 1];
       map.flyTo([p[1], p[0]], 15);
     }
   };
+  routeBtn.onclick = async () => {
+    const pts = extractCoords(fg);
+    if (pts.length && window.routeUiApi) {
+      await window.routeUiApi.setDest(L.latLng(pts[0][1], pts[0][0]));
+      window.routeUiApi.buildRoute();
+    }
+  };
 
-  actions.appendChild(eye); actions.appendChild(startBtn); actions.appendChild(endBtn); actions.appendChild(routeBtn);
-  item.appendChild(left); item.appendChild(actions);
   container.appendChild(item);
 }
 
