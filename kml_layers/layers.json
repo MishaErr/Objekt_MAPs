@@ -1,6 +1,7 @@
 [
-  { "file": "Дыманово.kml", "name": "Дыманово", "color": "#ff0000" },
-  { "file": "projekt.kml", "name": "старые проекты", "color": "#0000ff" }
+  {  "name": "Дыманово", "file": "Дыманово.kml", "color": "#ff0000" },
+  {  "name": "старые проекты", "file": "projekt.kml","color": "#0000ff" }
 ]
+
 
 
